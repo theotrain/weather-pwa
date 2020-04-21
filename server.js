@@ -16,102 +16,104 @@
  * See the License for the specific language governing permissions and
  * limitations under the License
  */
-'use strict';
+"use strict";
 
-const express = require('express');
-const fetch = require('node-fetch');
-const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
+require('dotenv').config()
+const express = require("express");
+const fetch = require("node-fetch");
+const redirectToHTTPS = require("express-http-to-https").redirectToHTTPS;
 
 // CODELAB: Change this to add a delay (ms) before the server responds.
 const FORECAST_DELAY = 0;
 
-// CODELAB: If running locally, set your Dark Sky API key here
-const API_KEY = process.env.DARKSKY_API_KEY;
-const BASE_URL = `https://api.darksky.net/forecast`;
+// CODELAB: If running locally, set your Open Weather Map API key here
+const API_KEY = process.env.OPEN_WEATHER_MAP_API_KEY;
+console.log(API_KEY);
+const BASE_URL = `https://api.openweathermap.org/data/2.5/onecall`;
 
-// Fake forecast data used if we can't reach the Dark Sky API
+// Fake forecast data used if we can't reach the Open Weather Map API
 const fakeForecast = {
   fakeData: true,
   latitude: 0,
   longitude: 0,
-  timezone: 'America/New_York',
+  timezone: "America/New_York",
   currently: {
     time: 0,
-    summary: 'Clear',
-    icon: 'clear-day',
+    summary: "Clear",
+    icon: "clear-day",
     temperature: 43.4,
     humidity: 0.62,
     windSpeed: 3.74,
-    windBearing: 208,
+    windBearing: 208
   },
   daily: {
     data: [
       {
         time: 0,
-        icon: 'partly-cloudy-night',
+        icon: "partly-cloudy-night",
         sunriseTime: 1553079633,
         sunsetTime: 1553123320,
         temperatureHigh: 52.91,
-        temperatureLow: 41.35,
+        temperatureLow: 41.35
       },
       {
         time: 86400,
-        icon: 'rain',
+        icon: "rain",
         sunriseTime: 1553165933,
         sunsetTime: 1553209784,
         temperatureHigh: 48.01,
-        temperatureLow: 44.17,
+        temperatureLow: 44.17
       },
       {
         time: 172800,
-        icon: 'rain',
+        icon: "rain",
         sunriseTime: 1553252232,
         sunsetTime: 1553296247,
         temperatureHigh: 50.31,
-        temperatureLow: 33.61,
+        temperatureLow: 33.61
       },
       {
         time: 259200,
-        icon: 'partly-cloudy-night',
+        icon: "partly-cloudy-night",
         sunriseTime: 1553338532,
         sunsetTime: 1553382710,
         temperatureHigh: 46.44,
-        temperatureLow: 33.82,
+        temperatureLow: 33.82
       },
       {
         time: 345600,
-        icon: 'partly-cloudy-night',
+        icon: "partly-cloudy-night",
         sunriseTime: 1553424831,
         sunsetTime: 1553469172,
         temperatureHigh: 60.5,
-        temperatureLow: 43.82,
+        temperatureLow: 43.82
       },
       {
         time: 432000,
-        icon: 'rain',
+        icon: "rain",
         sunriseTime: 1553511130,
         sunsetTime: 1553555635,
         temperatureHigh: 61.79,
-        temperatureLow: 32.8,
+        temperatureLow: 32.8
       },
       {
         time: 518400,
-        icon: 'rain',
+        icon: "rain",
         sunriseTime: 1553597430,
         sunsetTime: 1553642098,
         temperatureHigh: 48.28,
-        temperatureLow: 33.49,
+        temperatureLow: 33.49
       },
       {
         time: 604800,
-        icon: 'snow',
+        icon: "snow",
         sunriseTime: 1553683730,
         sunsetTime: 1553728560,
         temperatureHigh: 43.58,
-        temperatureLow: 33.68,
-      },
-    ],
-  },
+        temperatureLow: 33.68
+      }
+    ]
+  }
 };
 
 /**
@@ -121,8 +123,8 @@ const fakeForecast = {
  * @return {Object} forecast object.
  */
 function generateFakeForecast(location) {
-  location = location || '40.7720232,-73.9732319';
-  const commaAt = location.indexOf(',');
+  location = location || "40.7720232,-73.9732319";
+  const commaAt = location.indexOf(",");
 
   // Create a new copy of the forecast
   const result = Object.assign({}, fakeForecast);
@@ -131,7 +133,6 @@ function generateFakeForecast(location) {
   return result;
 }
 
-
 /**
  * Gets the weather forecast from the Dark Sky API for the given location.
  *
@@ -139,21 +140,28 @@ function generateFakeForecast(location) {
  * @param {Response} resp response object from Express.
  */
 function getForecast(req, resp) {
-  const location = req.params.location || '40.7720232,-73.9732319';
-  const url = `${BASE_URL}/${API_KEY}/${location}`;
-  fetch(url).then((resp) => {
-    if (resp.status !== 200) {
-      throw new Error(resp.statusText);
-    }
-    return resp.json();
-  }).then((data) => {
-    setTimeout(() => {
-      resp.json(data);
-    }, FORECAST_DELAY);
-  }).catch((err) => {
-    console.error('Dark Sky API Error:', err.message);
-    resp.json(generateFakeForecast(location));
-  });
+  const location = req.params.location || "40.7720232,-73.9732319";
+  const commaAt = location.indexOf(",");
+  const latitude = parseFloat(location.substr(0, commaAt));
+  const longitude = parseFloat(location.substr(commaAt + 1));
+  const url = `${BASE_URL}?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=imperial`;
+  console.log(url);
+  fetch(url)
+    .then(resp => {
+      if (resp.status !== 200) {
+        throw new Error(resp.statusText);
+      }
+      return resp.json();
+    })
+    .then(data => {
+      setTimeout(() => {
+        resp.json(data);
+      }, FORECAST_DELAY);
+    })
+    .catch(err => {
+      console.error("Open Weather Map API Error:", err.message);
+      resp.json(generateFakeForecast(location));
+    });
 }
 
 /**
@@ -179,17 +187,17 @@ function startServer() {
   });
 
   // Handle requests for the data
-  app.get('/forecast/:location', getForecast);
-  app.get('/forecast/', getForecast);
-  app.get('/forecast', getForecast);
+  app.get("/forecast/:location", getForecast);
+  app.get("/forecast/", getForecast);
+  app.get("/forecast", getForecast);
 
   // Handle requests for static files
-  app.use(express.static('public'));
+  app.use(express.static("public"));
 
   // Start the server
-  return app.listen('8000', () => {
+  return app.listen("8000", () => {
     // eslint-disable-next-line no-console
-    console.log('Local DevServer Started on port 8000...');
+    console.log("Local DevServer Started on port 8000...");
   });
 }
 
