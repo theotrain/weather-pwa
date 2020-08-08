@@ -27,7 +27,7 @@ const redirectToHTTPS = require("express-http-to-https").redirectToHTTPS;
 const FORECAST_DELAY = 0;
 
 // CODELAB: If running locally, set your Open Weather Map API key here
-const API_KEY = process.env.OPEN_WEATHER_MAP_API_KEY;
+const API_KEY = process.env.OPEN_WEATHER_MAP_API_KEY || "ea0a4f5b298340e450bcfa0e673655cd";
 console.log(API_KEY);
 const BASE_URL = `https://api.openweathermap.org/data/2.5/onecall`;
 
