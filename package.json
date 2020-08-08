@@ -2,15 +2,18 @@
   "name": "your-first-pwapp",
   "version": "2.0.0",
   "description": "Codelab for Your First PWAPP",
-  "homepage": "https://codelabs.developers.google.com/codelabs/your-first-pwapp/",
+  "homepage": "https://https://theotrain.github.io/weather-pwa/",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "express-http-to-https": "^1.1.4",
+    "gh-pages": "^3.1.0",
     "node-fetch": "^2.3.0"
   },
   "engines": {
